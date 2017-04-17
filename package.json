@@ -1,0 +1,25 @@
+{
+  "name": "object-expression-parser",
+  "version": "0.1.0",
+  "description": "javascript object expression parser.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/*.test.js"
+  },
+  "repository": {
+    "type": "git",  
+    "url": "git+https://github.com/unicreators/object-expression-parser.git"
+  },
+  "keywords": [
+    "expression-parser"
+  ],
+  "author": "yichen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/unicreators/object-expression-parser/issues"
+  },
+  "homepage": "https://github.com/unicreators/object-expression-parser#readme",
+  "devDependencies": {
+    "mocha": "^3.2.0"
+  }
+}
