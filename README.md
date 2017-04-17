@@ -22,10 +22,14 @@ console.log(values);
 ```
 
 
+## Install
+
+```sh
+$ npm install object-expression-parser
+```
 
 
-
-### 自定义一个语法转换器
+## 自定义一个语法转换器
 
 #### 配置比较操作符
 
