@@ -1,4 +1,4 @@
-## ExpressionParser
+## ObjectExpressionParser
 
 一个支持自定义操作符的 javascript 对象表达式转换器，可根据自定义的操作符生成不同语法。
 
@@ -89,13 +89,13 @@ let operatorIgnorecase = true;
 ```
 
 
-#### 构建 ExpressionParser 实例
+#### 构建 ObjectExpressionParser 实例
 
 - 使用配置参数构建 ExpressionParser 实例
 
 
 ```js
-let expressionParser = new ExpressionParser(c, l, 
+let expressionParser = new ObjectExpressionParser(c, l, 
                     defaultOperator, defaultLogicalOperator, 
                     arrayValueOperator, operatorIgnorecase);
 ```
@@ -127,7 +127,7 @@ console.log(values);
 
 
 
-#### ExpressionParser 构造
+#### ObjectExpressionParser 构造
 
 ```js
 /**
@@ -163,7 +163,7 @@ constructor (comparisonOperators, logicalOperators, defaultOperator,
 ```
 
 
-#### ExpressionParser.parse 方法
+#### ObjectExpressionParser.parse 方法
 
 ```js
 /**
