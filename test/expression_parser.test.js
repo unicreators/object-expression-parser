@@ -4,12 +4,13 @@
 const assert = require('assert');
 const ExpressionParser = require('../index');
 
+
 describe('expression_parser.test.js', function () {
 
     const _c = function (comparisonOperators, logicalOperators, defaultOperator,
-        defaultLogicalOperator, arrayValueOperator, operatorIgnorecase) {
+        defaultLogicalOperator, arrayValueOperator, operatorIgnorecase, unaryOperators) {
         return new ExpressionParser(comparisonOperators, logicalOperators, defaultOperator,
-            defaultLogicalOperator, arrayValueOperator, operatorIgnorecase);
+            defaultLogicalOperator, arrayValueOperator, operatorIgnorecase, unaryOperators);
     };
 
     const c = {
@@ -17,16 +18,22 @@ describe('expression_parser.test.js', function () {
             return { segment: `${prop} <=> ***`, values: [value] };
         }
     }, l = {
-        '&&': function (segments, originalOperator, level, context) {
+        '&&': function (expr, segments, originalOperator, level, context) {
             let operator = 'and';
             if (segments.length == 1) return segments[0];
             return `(${segments.join(`) ${operator} (`)})`;
         }
+    }, u = {
+        '!': function (expr, segment, originalOperator, level, context) {
+            return `not(${segment})`;
+        },
+        '*': {
+            through: true,
+            parse: function (expr, segment, originalOperator, level, context) {
+                return `table(${expr})`;
+            }
+        }
     };
-
-
-
-
 
 
     it('constructor error (logicalOperators undefined)', function () {
@@ -117,10 +124,21 @@ describe('expression_parser.test.js', function () {
 
     it('operator', function () {
 
-        let cep = _c(c, l, '_><_', '&&', '_><_');
-        let { segment, values } = cep.parse({ '&&': { 'test': 1, 'name': { '_><_': 'a' } } });
+        let cep = _c(c, l, '_><_', '&&', '_><_', true, u);
+        let { segment, values } = cep.parse(
+            {
+                '!': {
+                    '&&': {
+                        'test': 1,
+                        'name': {
+                            '_><_': 'a'
+                        },
+                        '*': 't_user'
+                    }
+                }
+            });
 
-        assert(segment == '(test <=> ***) and (name <=> ***)');
+        assert(segment == 'not((test <=> ***) and (name <=> ***) and (table(t_user)))');
         assert(Array.isArray(values));
         assert.deepEqual(values, [1, 'a']);
 
@@ -133,10 +151,9 @@ describe('expression_parser.test.js', function () {
                 return { segment: `${prop} <=> ***`, values: [value] };
             }
         }, l1 = {
-            '#b': function (segments, originalOperator, level, context) {
-                let operator = 'and';
+            '#b': function (expr, segments, originalOperator, level, context) {
                 if (segments.length == 1) return segments[0];
-                return `(${segments.join(`) ${operator} (`)})`;
+                return `(${segments.join(`) and (`)})`;
             }
         };
 
@@ -149,6 +166,204 @@ describe('expression_parser.test.js', function () {
 
     });
 
+    it('rule (through)', function () {
+        let cep = _c(c, l, '_><_', '&&', '_><_', true,
+            {
+                '#b': {
+                    through: true,
+                    parse: function (expr, segment, originalOperator, level, context) {
+                        // segment is null  on through                     
+                        return `not(${expr.name})`;
+                    }
+                }
+            });
+
+
+        let { segment, values } = cep.parse({
+            'test': 1,
+            '#b': {
+                'name': 'true'
+            }
+        });
+
+        assert(segment == '(test <=> ***) and (not(true))');
+        assert(Array.isArray(values));
+
+
+    });
+
+    it('rule (single)', function () {
+        let cep = _c(c, l, '_><_', '&&', '_><_', true,
+            {
+                '#b': {
+                    single: true,
+                    parse: function (expr, segment, originalOperator, level, context) {
+                        return `not(${segment})`;
+                    }
+                }
+            });
+
+        let f = function () {
+            cep.parse({
+                'test': 1,
+                '#b': {
+                    '#b': { 'a': 2 }
+                }
+            });
+        };
+
+        assert.throws(f, Error);
+
+    });
+
+    it('rule (level)', function () {
+        let cep = _c(c, l, '_><_', '&&', '_><_', true,
+            {
+                '#b': {
+                    level: 1,
+                    parse: function (expr, segment, originalOperator, level, context) {
+                        return `(${segment})`;
+                    }
+                }
+            });
+
+        let f = function () {
+            cep.parse({
+                'test': 1,
+                '#b': {
+                    '#b': { 'a': 2 }
+                }
+            });
+        };
+
+        assert.throws(f, Error);
+
+
+
+        cep = _c(c, l, '_><_', '&&', '_><_', true,
+            {
+                '#b': {
+                    level: [1, 2, 3],
+                    parse: function (expr, segment, originalOperator, level, context) {
+                        return `not(${segment})`;
+                    }
+                }
+            });
+
+        let { segment, values } = cep.parse({
+            'test': 1,
+            '#b': {
+                '#b': { 'a': 2 }
+            }
+        });
+
+        assert(segment);
+        assert(Array.isArray(values));
+
+
+        cep = _c(c, l, '_><_', '&&', '_><_', true,
+            {
+                '#b': {
+                    level: [2, 3],
+                    parse: function (expr, segment, originalOperator, level, context) {
+                        return `not(${segment})`;
+                    }
+                }
+            });
+
+        f = function () {
+            cep.parse({
+                'test': 1,
+                '#b': {
+                    '#b': { 'a': 2 }
+                }
+            });
+        };
+
+        assert.throws(f, Error);
+
+    });
+
+    it('rule (siblings)', function () {
+        let cep = _c(c, l, '_><_', '&&', '_><_', true,
+            {
+                '#b': {
+                    siblings: ['_><_'],
+                    parse: function (expr, segment, originalOperator, level, context) {
+                        return `not(${segment})`;
+                    }
+                }
+            });
+
+        let f = function () {
+            cep.parse({
+                'test': 1,
+                '#b': { 'a': 2 }
+            });
+        };
+
+        assert.throws(f, Error);
+
+    });
+
+    it('rule (runtimeValidate)', function () {
+        let cep = _c(c, l, '_><_', '&&', '_><_', true,
+            {
+                '#b': {
+                    runtimeValidate: function (val) { return typeof val === 'string'; },
+                    parse: function (expr, segment, originalOperator, level, context) {
+                        return `not(${segment})`;
+                    }
+                }
+            });
+
+        let f = function () {
+            cep.parse({
+                'test': 1,
+                '#b': { 'a': 2 }
+            });
+        };
+
+        assert.throws(f, Error);
+
+    });
+
+    it('rule (all)', function () {
+        let cep = _c(c, l, '_><_', '&&', '_><_', true,
+            {
+                '#b': {
+                    single: true,
+                    value: function (val) { return typeof val === 'string'; },
+                    level: [1],
+                    required: ['&&'],
+                    parse: function (expr, segment, originalOperator, level, context) {
+                        return `not(${segment})`;
+                    }
+                }
+            });
+
+        let f = function () {
+            cep.parse({
+                'test': 1,
+                '#b': { '#b': { 'a': 2 } }
+            });
+        };
+
+        assert.throws(f, Error);
+
+        let { segment, values } = cep.parse({
+            'test': 1,
+            '#b': 'a',
+            '&&': { 'x': 1 }
+        });
+
+        assert(segment);
+        assert(Array.isArray(values));
+
+    });
+
+
+
     it('context', function () {
 
         const c1 = {
@@ -156,7 +371,7 @@ describe('expression_parser.test.js', function () {
                 return { segment: `${context[prop]} <=> ***`, values: [value] };
             }
         }, l1 = {
-            '&&': function (segments, originalOperator, level, context) {
+            '&&': function (expr, segments, originalOperator, level, context) {
                 let operator = 'and';
                 if (segments.length == 1) return segments[0];
                 return `(${segments.join(`) ${operator} (`)})`;
@@ -176,12 +391,32 @@ describe('expression_parser.test.js', function () {
     });
 
 
+
+
     it('all', function () {
 
         // 配置比较操作符
         let c = {
-            '$gt': function (prop, value, originalOperator, context) {
-                return { segment: `${prop} > ?`, values: [value] };
+            '$gt':
+            {
+                // 当设置值为true时将不解析子对象
+                through: false,
+                // 当设置值为true时此操作符只可出现一次
+                single: false,
+                // 限定同级操作符必须包括数组中指定的全部操作符
+                siblings: [],
+                // 限定父级操作符必须为数组中指定操作符中的一个
+                parents: [],
+                // 限定操作符在指定的层级(level)中使用
+                level: [1, 2, 3],
+                // 自定义对运行时值的验证
+                runtimeValidate: function (value) {
+                    return true;
+                },
+                // 核心转换方法
+                parse: function (prop, value, originalOperator, context) {
+                    return { segment: `${prop} > ?`, values: [value] };
+                }
             },
             '$lt': function (prop, value, originalOperator, context) {
                 return { segment: `${prop} < ?`, values: [value] };
@@ -196,16 +431,15 @@ describe('expression_parser.test.js', function () {
 
         // 配置逻辑操作符
         let l = {
-            '&&': function (segments, originalOperator, level, context) {
+            '&&': function (expr, segments, originalOperator, level, context) {
                 if (segments.length == 1) return segments[0];
                 return `(${segments.join(`) and (`)})`;
             },
-            '||': function (segments, originalOperator, level, context) {
+            '||': function (expr, segments, originalOperator, level, context) {
                 if (segments.length == 1) return segments[0];
                 return `(${segments.join(`) or (`)})`;
             }
         };
-
 
         // 当未指明比较操作符时视为使用 $eq 处理
         let defaultOperator = '$eq';
@@ -231,7 +465,7 @@ describe('expression_parser.test.js', function () {
 
         assert(segment == '(name = ?) and ((age > ?) and (age < ?)) and ((level in (?)) or (age in (?)))');
         assert(Array.isArray(values));
-        assert.deepEqual(values, [ 'yichen', 18, 30, [ 1, 2 ], [ 3, 4 ] ]);
+        assert.deepEqual(values, ['yichen', 18, 30, [1, 2], [3, 4]]);
 
 
     });
