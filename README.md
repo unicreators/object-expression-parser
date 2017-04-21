@@ -37,16 +37,33 @@ $ npm install object-expression-parser
 
 ```js
 let c = {
-    '$gt': function (prop, value, originalOperator, context) {
-        return { segment: `${prop} > ?`, values: [value] };
+    '$gt': {
+        // 当设置值为true时将不解析子对象
+        through: false,
+        // 当设置值为true时此操作符只可出现一次
+        single: false,
+        // 限定同级操作符必须包括数组中指定的全部操作符
+        siblings: [],
+        // 限定父级操作符必须为数组中指定操作符中的一个
+        parents: [],
+        // 限定操作符在指定的层级(level)中使用
+        level: [1, 2, 3],
+        // 自定义对运行时值的验证
+        runtimeValidate: function (value) {
+            return true;
+        },
+        // 核心转换方法
+        parse: function (prop, value, originalOperator, level, context) {
+            return { segment: `${prop} > ?`, values: [value] };
+        }
     },
-    '$lt': function (prop, value, originalOperator, context) {
+    '$lt': function (prop, value, originalOperator, level, context) {
         return { segment: `${prop} < ?`, values: [value] };
     },
-    '$eq': function (prop, value, originalOperator, context) {
+    '$eq': function (prop, value, originalOperator, level, context) {
         return { segment: `${prop} = ?`, values: [value] };
     },
-    '$in': function (prop, value, originalOperator, context) {
+    '$in': function (prop, value, originalOperator, level, context) {
         return { segment: `${prop} in (?)`, values: [value] };
     }
 };
@@ -59,13 +76,60 @@ let c = {
 
 ```js
 let l = {
-    '&&': function (segments, originalOperator, level, context) {
-        if (segments.length == 1) return segments[0];
-        return `(${segments.join(`) and (`)})`;
-    },
-    '||': function (segments, originalOperator, level, context) {
+    '&&': {
+        // 当设置值为true时将不解析子对象
+        through: false,
+        // 当设置值为true时此操作符只可出现一次
+        single: false,
+        // 限定同级操作符必须包括数组中指定的全部操作符
+        siblings: [],
+        // 限定父级操作符必须为数组中指定操作符中的一个
+        parents: [],
+        // 限定操作符在指定的层级(level)中使用
+        level: [1, 2, 3],
+        // 自定义对运行时值的验证
+        runtimeValidate: function (value) {
+            return true;
+        },
+        // 核心转换方法
+        parse:  function (expr, segments, originalOperator, level, context) {
+            if (segments.length == 1) return segments[0];
+            return `(${segments.join(`) and (`)})`;
+        }
+    },   
+    '||': function (expr, segments, originalOperator, level, context) {
         if (segments.length == 1) return segments[0];
         return `(${segments.join(`) or (`)})`;
+    }
+};
+```
+
+#### 配置一元操作符
+
+- 配置支持 not 的一元操作符。
+
+
+```js
+let u = {
+    '$not': {
+        // 当设置值为true时将不解析子对象
+        through: false,
+        // 当设置值为true时此操作符只可出现一次
+        single: false,
+        // 限定同级操作符必须包括数组中指定的全部操作符
+        siblings: [],
+        // 限定父级操作符必须为数组中指定操作符中的一个
+        parents: [],
+        // 限定操作符在指定的层级(level)中使用
+        level: [1, 2, 3],
+        // 自定义对运行时值的验证
+        runtimeValidate: function (value) {
+            return true;
+        },
+        // 核心转换方法
+        parse:  function (expr, segment, originalOperator, level, context) {            
+            return `not(${segment})`;
+        }
     }
 };
 ```
@@ -91,13 +155,13 @@ let operatorIgnorecase = true;
 
 #### 构建 ObjectExpressionParser 实例
 
-- 使用配置参数构建 ExpressionParser 实例
+- 使用配置参数构建 ObjectExpressionParser 实例
 
 
 ```js
 let expressionParser = new ObjectExpressionParser(c, l, 
                     defaultOperator, defaultLogicalOperator, 
-                    arrayValueOperator, operatorIgnorecase);
+                    arrayValueOperator, operatorIgnorecase, u);
 ```
 
 
@@ -134,11 +198,11 @@ console.log(values);
 * 
 * @param {Object} comparisonOperators 
 * 配置比较操作符及对应处理方法
-* 处理方法原型 (prop, value, originalOperator, context) => { segment, values }
+* 处理方法原型 (prop, value, originalOperator, level, context) => { segment, values }
 * 
 * @param {Object} logicalOperators 
 * 配置逻辑操作符及对应处理方法
-* 处理方法原型 (segments, originalOperator, level, context) => String
+* 处理方法原型 (expr, segments, originalOperator, level, context) => { segment, values }
 * 
 * @param {String} defaultOperator 
 * 指定当未指明比较操作符时所使用的操作符, 此操作符必须存在于配置(comparisonOperators)中。
@@ -154,9 +218,13 @@ console.log(values);
 * 
 * @param {Boolean} operatorIgnorecase
 * 操作符是否忽略大小写, 默认true
+*
+* @param {Object} unaryOperators
+* 配置一元操作符及对应处理方法
+* 处理方法原型 (expr, segment, originalOperator, level, context) => { segment, values }
 */
 constructor (comparisonOperators, logicalOperators, defaultOperator,
-        defaultLogicalOperator, arrayValueOperator, operatorIgnorecase = true) {
+        defaultLogicalOperator, arrayValueOperator, operatorIgnorecase = true, unaryOperators = undefined) {
 
 }
 
