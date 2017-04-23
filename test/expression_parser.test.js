@@ -367,7 +367,7 @@ describe('expression_parser.test.js', function () {
     it('context', function () {
 
         const c1 = {
-            '_><_': function (prop, value, originalOperator, context) {
+            '_><_': function (prop, value, originalOperator, level, context) {
                 return { segment: `${context[prop]} <=> ***`, values: [value] };
             }
         }, l1 = {
