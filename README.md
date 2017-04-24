@@ -1,8 +1,7 @@
 ## ObjectExpressionParser
 
 一个支持自定义操作符的 javascript 对象表达式转换器，可根据自定义的操作符生成不同语法。
-
-
+  
 ```js
 let e = {
     'name': 'yichen',
@@ -20,39 +19,15 @@ console.log(values);
 // [ 'yichen', 18, 30, [ 1, 2 ], [ 3, 4 ] ]
 
 ```
-
-
-<!-- toc -->
-
-- [Install](#install)
-- [Usage](#usage)
-  * [配置比较操作符](#%E9%85%8D%E7%BD%AE%E6%AF%94%E8%BE%83%E6%93%8D%E4%BD%9C%E7%AC%A6)
-  * [配置逻辑操作符](#%E9%85%8D%E7%BD%AE%E9%80%BB%E8%BE%91%E6%93%8D%E4%BD%9C%E7%AC%A6)
-  * [配置一元操作符](#%E9%85%8D%E7%BD%AE%E4%B8%80%E5%85%83%E6%93%8D%E4%BD%9C%E7%AC%A6)
-  * [其它配置](#%E5%85%B6%E5%AE%83%E9%85%8D%E7%BD%AE)
-  * [构建 ObjectExpressionParser 实例](#%E6%9E%84%E5%BB%BA-objectexpressionparser-%E5%AE%9E%E4%BE%8B)
-  * [转换表达式](#%E8%BD%AC%E6%8D%A2%E8%A1%A8%E8%BE%BE%E5%BC%8F)
-- [Operator attributes](#operator-attributes)
-- [Attribute 'parse' method](#attribute-parse-method)
-  * [ComparisonOperator](#comparisonoperator)
-  * [LogicalOperator](#logicaloperator)
-  * [UnaryOperator](#unaryoperator)
-- [ObjectExpressionParser 构造](#objectexpressionparser-%E6%9E%84%E9%80%A0)
-  * [ObjectExpressionParser.parse 方法](#objectexpressionparserparse-%E6%96%B9%E6%B3%95)
-  * [License](#license)
-
-<!-- tocstop -->
-
-
-
-
+  
+  
 ## Install
 
 ```sh
 $ npm install object-expression-parser
 ```
-
-
+  
+  
 ## Usage
 
 ### 配置比较操作符
@@ -79,7 +54,8 @@ let c = {
     }
 };
 ```
-
+  
+  
 ### 配置逻辑操作符
 
 - 配置支持 and、or 的逻辑操作符。
@@ -97,7 +73,8 @@ let l = {
     }
 };
 ```
-
+  
+  
 ### 配置一元操作符
 
 - 配置支持 not 的一元操作符。
@@ -111,8 +88,8 @@ let u = {
     
 };
 ```
-
-
+  
+  
 ### 其它配置
 
 
@@ -129,11 +106,11 @@ let arrayValueOperator = '$in';
 // 设置操作符忽略大小写
 let operatorIgnorecase = true;
 ```
-
-
+  
+  
 ### 构建 ObjectExpressionParser 实例
 
-- 使用配置参数构建 ObjectExpressionParser 实例
+- 使用配置参数构建 ObjectExpressionParser 实例    
 
 
 ```js
@@ -141,9 +118,8 @@ let expressionParser = new ObjectExpressionParser(c, l,
                     defaultOperator, defaultLogicalOperator, 
                     arrayValueOperator, operatorIgnorecase, u);
 ```
-
-
-
+  
+  
 ### 转换表达式
 
 
@@ -164,52 +140,55 @@ console.log(values);
 // [ 'yichen', 18, 30, [ 1, 2 ], [ 3, 4 ] ]
 
 ```
-
-
-
-
-## Operator attributes
+  
+  
+## Operator attributes  
 
 
 | attribute     | type                      | required  | default   | desc    |
-|:---           | ---                       | ---       | ---       | ---     |
+|:---           | :---                      | :---      | :---      | :---    |
 | `parse`       | `Function`                | `yes`     |           | 表达式核心转换方法，用于将对象(表达式)转换成字符串
 | `through`     | `Boolean`                 |           | `False`   | 设置操作符不解析子对象(表达式)，而是将子对象(表达式)直接传递给`parse`方法
 | `priority`    | `Int`                     |           |           | 操作符优先级(同级多个操作符解析时，此数值小的优先解析)
 | `single`      | `Boolean`                 |           | `False`   | 限定操作符仅可在被解析对象(表达式)中出现一次
 | `level`       | `Int, [Int]`                     |           |           | 限定操作符在对象(表达式)中的层级 
 | `children`    | `Object`                  |
-| -- `only`      | `Boolean`                 |           | `False`   | 全称`useOperatorOnly`, 限定子级对象(表达式)中仅可使用操作符
-| -- `required`  | `String, [String]`         |           |           | 限定子级对象(表达式)中必须包括此列表中指定的操作符
-| -- `optional`  | `String, Object, [String], [Object]`  |           |           | 限定子级对象(表达式)中除`required`列表中指定的操作符之外，只可使用此列表中指定的操作符
-| ---- `name`     | `String`                  | `yes`     |           | 操作符名称
-| ---- `autoParse`| `Boolean`                 |           | `False`   | 指定当对象(表达式)中未包含`name`中指定的操作符时，是否自动执行此操作符的转换操作
-| ---- `defaultTo`| `Any`                     |           |           | 指定当`autoParse`为`true`时，执行转换操作传递给`parse`的对象(表达式)或值
+| - `only`      | `Boolean`                 |           | `False`   | 全称`useOperatorOnly`, 限定子级对象(表达式)中仅可使用操作符
+| - `required`  | `String, [String]`         |           |           | 限定子级对象(表达式)中必须包括此列表中指定的操作符
+| - `optional`  | `String, Object, [String], [Object]`  |           |           | 限定子级对象(表达式)中除`required`列表中指定的操作符之外，只可使用此列表中指定的操作符
+| -- `name`     | `String`                  | `yes`     |           | 操作符名称
+| -- `autoParse`| `Boolean`                 |           | `False`   | 指定当对象(表达式)中未包含`name`中指定的操作符时，是否自动执行此操作符的转换操作
+| -- `defaultTo`| `Any`                     |           |           | 指定当`autoParse`为`true`时，执行转换操作传递给`parse`的对象(表达式)或值
 | `siblings`    | `String, [String]`         |           |           | 限定同级对象(表达式)中必须包括此列表中指定的操作符
 | `parents`     | `String, [String]`         |           |           | 限定父级操作符必须为`parents`列表中的一个
 | `runtimeValidate` | `Function`            |           |           | 自定义运行时对象(表达式)或值的验证方法
 
-
-
+  
+  
 ## Attribute 'parse' method
 - 表达式核心转换方法
-
+  
 ### ComparisonOperator
+  
+
 ```js
 function(prop, value, originalOperator, level, context) { 
 	// segment, values 
 	return { segment: '', values: [] };
 }
 ```
-| argument              | type      | desc 
-|:-                     |           |    
+
+
+| argument              | type      | desc  |
+|:---                   | :---      | :---  |
 | `prop`                | `String`  | 要转换的属性名称
 | `value`               | `Any`     | 要转换的属性值
 | `originalOperator`    | `String`  | 原始操作符
 | `level`               | `Int`     | 要转换的属性在对象(表达式)中所处的层级
-| `context`             | `Any`     | 惯穿全局的上下文对象(由 `ObjectExpressionParser.parse`方法传入)
+| `context`             | `Any`     | 惯穿全局的上下文对象(由`ObjectExpressionParser.parse`方法传入)
 
-
+  
+  
 ### LogicalOperator
 
 
@@ -222,14 +201,15 @@ function(expr, segments, originalOperator, level, context) {
 
 
 | argument              | type      | desc  |
-|:---                   | ---       | ---   |
+|:---                   | :---      | :---  |
 | `expr`                | `Any`     | 原始的对象(表达式)
 | `segments`            | `[String]`| 转换后的子级对象(表达式)片段, 当操作符属性(attribute)`through`为`True`时，此参数值为`undefined`
 | `originalOperator`    | `String`  | 原始操作符
 | `level`               | `Int`     | 要转换的属性在对象(表达式)中所处的层级
 | `context`             | `Any`     | 惯穿全局的上下文对象(由 `ObjectExpressionParser.parse`方法传入)
 
-
+  
+    
 ### UnaryOperator
 
 
@@ -239,19 +219,18 @@ function(expr, segment, originalOperator, level, context) {
 	return { segment: '', values: [] };
 }
 ```
-
+  
 
 | argument              | type      | desc  |
-|:---                   | ---       | ---   |  
+|:---                   | :---      | :---  | 
 | `expr`                | `Any`     | 原始的对象(表达式)
 | `segment`             | `[String]`| 转换后的子级对象(表达式)片段, 当操作符属性(attribute)`through`为`True`时，此参数值为`undefined`
 | `originalOperator`    | `String`  | 原始操作符
 | `level`               | `Int`     | 要转换的属性在对象(表达式)中所处的层级
 | `context`             | `Any`     | 惯穿全局的上下文对象(由 `ObjectExpressionParser.parse`方法传入)
 
-
-
-
+  
+  
 ## ObjectExpressionParser 构造
 
 ```js
@@ -281,8 +260,8 @@ constructor (comparisonOperators, logicalOperators, defaultOperator,
 }
 
 ```
-
-
+  
+  
 ### ObjectExpressionParser.parse 方法
 
 ```js
@@ -304,14 +283,12 @@ parse(expr, context = undefined) {
 ```
 
 
-
 ```js
 let { segment, values } = expressionParser.parse({ 'name': 'a' });
 ```
+  
+  
 
-
-
-
-### License
+## License
 
 [MIT](LICENSE)
