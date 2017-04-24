@@ -22,6 +22,30 @@ console.log(values);
 ```
 
 
+<!-- toc -->
+
+- [Install](#install)
+- [Usage](#usage)
+  * [配置比较操作符](#%E9%85%8D%E7%BD%AE%E6%AF%94%E8%BE%83%E6%93%8D%E4%BD%9C%E7%AC%A6)
+  * [配置逻辑操作符](#%E9%85%8D%E7%BD%AE%E9%80%BB%E8%BE%91%E6%93%8D%E4%BD%9C%E7%AC%A6)
+  * [配置一元操作符](#%E9%85%8D%E7%BD%AE%E4%B8%80%E5%85%83%E6%93%8D%E4%BD%9C%E7%AC%A6)
+  * [其它配置](#%E5%85%B6%E5%AE%83%E9%85%8D%E7%BD%AE)
+  * [构建 ObjectExpressionParser 实例](#%E6%9E%84%E5%BB%BA-objectexpressionparser-%E5%AE%9E%E4%BE%8B)
+  * [转换表达式](#%E8%BD%AC%E6%8D%A2%E8%A1%A8%E8%BE%BE%E5%BC%8F)
+- [Operator attributes](#operator-attributes)
+- [Attribute 'parse' method](#attribute-parse-method)
+  * [ComparisonOperator](#comparisonoperator)
+  * [LogicalOperator](#logicaloperator)
+  * [UnaryOperator](#unaryoperator)
+- [ObjectExpressionParser 构造](#objectexpressionparser-%E6%9E%84%E9%80%A0)
+  * [ObjectExpressionParser.parse 方法](#objectexpressionparserparse-%E6%96%B9%E6%B3%95)
+  * [License](#license)
+
+<!-- tocstop -->
+
+
+
+
 ## Install
 
 ```sh
@@ -56,7 +80,7 @@ let c = {
 };
 ```
 
-#### 配置逻辑操作符
+### 配置逻辑操作符
 
 - 配置支持 and、or 的逻辑操作符。
 
@@ -147,8 +171,8 @@ console.log(values);
 ## Operator attributes
 
 
-| attribute     | type                      | required  | default | desc 
-|:-             |                           |           |
+| attribute     | type                      | required  | default   | desc    |
+|:---           | ---                       | ---       | ---       | ---     |
 | `parse`       | `Function`                | `yes`     |           | 表达式核心转换方法，用于将对象(表达式)转换成字符串
 | `through`     | `Boolean`                 |           | `False`   | 设置操作符不解析子对象(表达式)，而是将子对象(表达式)直接传递给`parse`方法
 | `priority`    | `Int`                     |           |           | 操作符优先级(同级多个操作符解析时，此数值小的优先解析)
@@ -187,14 +211,18 @@ function(prop, value, originalOperator, level, context) {
 
 
 ### LogicalOperator
+
+
 ```js
 function(expr, segments, originalOperator, level, context) { 
 	// segment, values 
 	return { segment: '', values: [] };
 }
 ```
-| argument              | type      | desc 
-|:-                     |           |    
+
+
+| argument              | type      | desc  |
+|:---                   | ---       | ---   |
 | `expr`                | `Any`     | 原始的对象(表达式)
 | `segments`            | `[String]`| 转换后的子级对象(表达式)片段, 当操作符属性(attribute)`through`为`True`时，此参数值为`undefined`
 | `originalOperator`    | `String`  | 原始操作符
@@ -203,14 +231,18 @@ function(expr, segments, originalOperator, level, context) {
 
 
 ### UnaryOperator
+
+
 ```js
 function(expr, segment, originalOperator, level, context) { 
 	// segment, values 
 	return { segment: '', values: [] };
 }
 ```
-| argument              | type      | desc 
-|:-                     |           |   
+
+
+| argument              | type      | desc  |
+|:---                   | ---       | ---   |  
 | `expr`                | `Any`     | 原始的对象(表达式)
 | `segment`             | `[String]`| 转换后的子级对象(表达式)片段, 当操作符属性(attribute)`through`为`True`时，此参数值为`undefined`
 | `originalOperator`    | `String`  | 原始操作符
@@ -251,7 +283,7 @@ constructor (comparisonOperators, logicalOperators, defaultOperator,
 ```
 
 
-#### ObjectExpressionParser.parse 方法
+### ObjectExpressionParser.parse 方法
 
 ```js
 /**
