@@ -18,9 +18,9 @@ console.log(segment);
 console.log(values);
 // [ 'yichen', 18, 30, [ 1, 2 ], [ 3, 4 ] ]
 
-```
-  
-  
+```    
+    
+    
 ## Install
 
 ```sh
@@ -153,12 +153,17 @@ console.log(values);
 | `single`      | `Boolean`                 |           | `False`   | 限定操作符仅可在被解析对象(表达式)中出现一次
 | `level`       | `Int, [Int]`                     |           |           | 限定操作符在对象(表达式)中的层级 
 | `children`    | `Object`                  |
-| - `only`      | `Boolean`                 |           | `False`   | 全称`useOperatorOnly`, 限定子级对象(表达式)中仅可使用操作符
+| - `parseBehavior`      | `ParseBehavior`  |           | `Default`   | 设置子级对象(表达式)转换行为
+|               | *`ParseBehavior.OperatorOnly`*  |           |   | 只转换操作符对象(表达式)
+|               | *`ParseBehavior.PropertyOnly`*  |           |   | 只转换常规属性对象(表达式)
+|               | *`ParseBehavior.OperatorFirst`*  |           |   | 优先转换操作符对象(表达式)
+|               | *`ParseBehavior.PropertyFirst`*  |           |   | 优先转换常规属性对象(表达式)
+|               | *`ParseBehavior.Default`*  |           |   | 按定义顺序转换(未设置此项时使用该行为)
 | - `required`  | `String, [String]`         |           |           | 限定子级对象(表达式)中必须包括此列表中指定的操作符
 | - `optional`  | `String, Object, [String], [Object]`  |           |           | 限定子级对象(表达式)中除`required`列表中指定的操作符之外，只可使用此列表中指定的操作符
-| -- `name`     | `String`                  | `yes`     |           | 操作符名称
-| -- `autoParse`| `Boolean`                 |           | `False`   | 指定当对象(表达式)中未包含`name`中指定的操作符时，是否自动执行此操作符的转换操作
-| -- `defaultTo`| `Any`                     |           |           | 指定当`autoParse`为`true`时，执行转换操作传递给`parse`的对象(表达式)或值
+|   -- `name`     | `String`                  | `yes`     |           | 操作符名称
+|   -- `autoParse`| `Boolean`                 |           | `False`   | 指定当对象(表达式)中未包含`name`中指定的操作符时，是否自动执行此操作符的转换操作
+|   -- `defaultTo`| `Any`                     |           |           | 指定当`autoParse`为`true`时，执行转换操作传递给`parse`的对象(表达式)或值
 | `siblings`    | `String, [String]`         |           |           | 限定同级对象(表达式)中必须包括此列表中指定的操作符
 | `parents`     | `String, [String]`         |           |           | 限定父级操作符必须为`parents`列表中的一个
 | `runtimeValidate` | `Function`            |           |           | 自定义运行时对象(表达式)或值的验证方法
@@ -173,8 +178,8 @@ console.log(values);
 
 ```js
 function(prop, value, originalOperator, level, context) { 
-	// segment, values 
-	return { segment: '', values: [] };
+  // segment, values 
+  return { segment: '', values: [] };
 }
 ```
 
@@ -194,8 +199,8 @@ function(prop, value, originalOperator, level, context) {
 
 ```js
 function(expr, segments, originalOperator, level, context) { 
-	// segment, values 
-	return { segment: '', values: [] };
+  // segment, values 
+  return { segment: '', values: [] };
 }
 ```
 
@@ -215,8 +220,8 @@ function(expr, segments, originalOperator, level, context) {
 
 ```js
 function(expr, segment, originalOperator, level, context) { 
-	// segment, values 
-	return { segment: '', values: [] };
+  // segment, values 
+  return { segment: '', values: [] };
 }
 ```
   
@@ -224,7 +229,7 @@ function(expr, segment, originalOperator, level, context) {
 | argument              | type      | desc  |
 |:---                   | :---      | :---  | 
 | `expr`                | `Any`     | 原始的对象(表达式)
-| `segment`             | `[String]`| 转换后的子级对象(表达式)片段, 当操作符属性(attribute)`through`为`True`时，此参数值为`undefined`
+| `segment`             | `String`  | 转换后的子级对象(表达式)片段, 当操作符属性(attribute)`through`为`True`时，此参数值为`undefined`
 | `originalOperator`    | `String`  | 原始操作符
 | `level`               | `Int`     | 要转换的属性在对象(表达式)中所处的层级
 | `context`             | `Any`     | 惯穿全局的上下文对象(由 `ObjectExpressionParser.parse`方法传入)
